@@ -1,4 +1,4 @@
-import React from 'react';
+import { FunctionComponent } from 'react';
 import '../../tailwind.css';
 import { useClipboard } from 'hooks/useClipboard';
 import { useResizeByText } from 'hooks/useResizeByText';
@@ -8,7 +8,7 @@ export interface ClipboardCopyProps {
 	/**
 	 * Label above clipboard copy area
 	 */
-	label?: string;
+	label: string;
 	/**
 	 * Text to be converted to the html element id
 	 */
@@ -20,16 +20,16 @@ export interface ClipboardCopyProps {
 	/**
 	 * Whether to append time copied message in label
 	 */
-	isTimeShown: boolean;
+	isTimeShown?: boolean;
 	/**
 	 * Maximum pixel height to resize without scrollbar
 	 */
-	heightLimitPx: number;
+	heightLimitPx?: number;
 }
 
 const title = 'Click to copy to clipboard';
 
-export const ClipboardCopy: React.FC<ClipboardCopyProps> = ({
+export const ClipboardCopy: FunctionComponent<ClipboardCopyProps> = ({
 	label,
 	id,
 	text,
@@ -41,30 +41,31 @@ export const ClipboardCopy: React.FC<ClipboardCopyProps> = ({
 	const { ref } = useResizeByText<HTMLTextAreaElement>(heightLimitPx, text);
 
 	const displayedText = Array.isArray(text) ? text.join('\r\n') : text;
-	const generatedId = `clipboard-copy-${$i(id)}`;
+	const textAreaId = `clipboard-copy-ta-${$i(id)}`;
+	const labelId = `clipboard-copy-label-${$i(id)}`;
 
 	const onClickHandler = () => addToClipboard(displayedText);
 	const onBlurHandler = () => clear();
 
 	return (
 		<>
-			<div>
-				<label htmlFor={generatedId} title={title}>
-					{label}
-					{isTimeShown && displayTime && ` | ${displayTime}`}
-				</label>
-			</div>
-			<textarea
-				id={generatedId}
-				className="cursor-pointer text-blue-400 bg-gray-600 hover:text-blue-300 p-4"
-				title={title}
-				role="button"
-				ref={ref}
-				value={displayedText}
-				readOnly
-				onClick={onClickHandler}
-				onBlur={onBlurHandler}
-			/>
+			<label id={labelId} htmlFor={textAreaId} title={title}>
+				{label}
+				{isTimeShown && displayTime && ` | ${displayTime}`}
+				<br />
+				<textarea
+					id={textAreaId}
+					className="cursor-pointer text-blue-400 bg-gray-600 hover:text-blue-300 p-4"
+					title={title}
+					role="button"
+					ref={ref}
+					value={displayedText}
+					readOnly
+					onClick={onClickHandler}
+					onBlur={onBlurHandler}
+					aria-labelledby={labelId}
+				/>
+			</label>
 		</>
 	);
 };
